@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/purchase-history")
@@ -134,5 +135,11 @@ public class PurchaseHistoryController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .contentLength(resource.contentLength())
                 .body(resource);
+    }
+
+    @GetMapping("/asset/{id}")
+    @Operation(summary = "Get Purchase History by Asset ID")
+    public List<PurchaseHistoryResponseDTO> getByAssetId(@PathVariable Long id) {
+        return service.getByAssetId(id);
     }
 }

@@ -63,7 +63,6 @@ public class PurchaseHistoryService {
         double totalCurrentValue = content.stream()
                 .mapToDouble(dto -> dto.getCurrentValue() != null ? dto.getCurrentValue() : 0.0)
                 .sum();
-                System.out.println("api calling ");
         return PurchaseHistoryPageResponse.builder()
                 .content(content)
                 .pageNumber(purchaseHistoryPage.getNumber())
@@ -90,7 +89,6 @@ public class PurchaseHistoryService {
         double totalCurrentValue = content.stream()
                 .mapToDouble(dto -> dto.getCurrentValue() != null ? dto.getCurrentValue() : 0.0)
                 .sum();
-        System.out.println("api calling ");
         return PurchaseHistoryPageResponse.builder()
                 .content(content)
                 .pageNumber(purchaseHistoryPage.getNumber())
@@ -320,5 +318,12 @@ public class PurchaseHistoryService {
 
     private double roundTo2Decimal(double value) {
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    public List<PurchaseHistoryResponseDTO> getByAssetId(Long id) {
+        List<PurchaseHistory> histories = purchaseHistoryRepository.findByAssetId(id);
+        return histories.stream()
+                .map(purchaseHistoryMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 }

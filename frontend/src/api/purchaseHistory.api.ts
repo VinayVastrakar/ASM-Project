@@ -41,6 +41,11 @@ export const purchaseHistoryApi = {
     return response.data;
   },
 
+  getPurchaseHistoryByAssetId: async (assetId: number) => {
+    const response = await api.get<PurchaseHistoryResponse>(`/api/purchase-history/asset/${assetId}`);
+    return response.data;
+  },
+
   // Download Excel report
   downloadExcel: async (params: { assetId?: number }) => {
     const query = params.assetId ? `?assetId=${params.assetId}` : '';

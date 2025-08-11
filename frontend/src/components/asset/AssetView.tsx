@@ -233,7 +233,7 @@ const AssetView: React.FC = () => {
             </button>
 
             <button
-              onClick={() => navigate(`/purchase-history/asset/${asset.id}`)}
+              onClick={() => navigate(`/purchase-history/asset/${asset.id}?char=A`)}
               className="px-4 py-2 bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition"
             >
               View Purchase History

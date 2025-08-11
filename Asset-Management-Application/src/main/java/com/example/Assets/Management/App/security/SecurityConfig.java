@@ -33,7 +33,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/refresh-token","/api/auth/**","/swagger-ui/**","/swagger-ui.html","/v3/api-docs/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("ADMIN", "USER")
+                .requestMatchers(HttpMethod.GET).hasAnyRole("ADMIN", "USER")
                 .requestMatchers("/api/categories/**").hasAnyRole("ADMIN", "USER")
                 .requestMatchers("/api/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -48,6 +48,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+        
     }
 
     @Bean
