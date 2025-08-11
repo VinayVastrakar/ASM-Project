@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { RootState } from '../../redux/store';
 import { logout } from '../../redux/slices/authSlice';
 
@@ -11,11 +12,13 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-md w-full">
       <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center">
-          <img
-            className="h-16 w-auto"
-            src="/Assets/Gloitel.jpg"
-            alt="Company Logo"
-          />
+          <Link to="/dashboard">
+            <img
+              className="h-16 w-auto cursor-pointer"
+              src="/Assets/Gloitel.jpg"
+              alt="Company Logo"
+            />
+          </Link>
         </div>
         {user && (
           <div className="flex items-center space-x-4">
@@ -35,4 +38,5 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header; 
+export default Header;
+  
