@@ -15,9 +15,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Users user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        
+        // For Google users, we need to handle the password differently
+        String password = "GOOGLE_AUTH_USER".equals(user.getPassword()) ? 
+            "{noop}GOOGLE_AUTH_USER" : user.getPassword();
+            
         return org.springframework.security.core.userdetails.User
             .withUsername(user.getEmail())
-            .password(user.getPassword())
+            .password(password)
             .roles(user.getRole().toString())
             .build();
     }

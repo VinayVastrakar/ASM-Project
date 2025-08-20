@@ -23,7 +23,7 @@ const Header: React.FC = () => {
         {user && (
           <div className="flex items-center space-x-4">
             <span className="text-gray-700">
-              Welcome, {user.name} ({user.role})
+             Welcome, {user.name} ({user.role})
             </span>
             <button
               onClick={() => dispatch(logout())}

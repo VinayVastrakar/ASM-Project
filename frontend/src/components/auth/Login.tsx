@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { login, clearError } from '../../redux/slices/authSlice';
+import { login, googleLogin, clearError } from '../../redux/slices/authSlice';
 import { AppDispatch, RootState } from '../../redux/store';
 import { Alert } from '../common/Alert';
+import { GoogleLogin } from '@react-oauth/google';
 
 const Login: React.FC = () => {
   const [credentials, setCredentials] = useState({
@@ -267,21 +268,43 @@ const Login: React.FC = () => {
             </div>
 
             {/* Google Auth Button */}
-            <button
-              type="button"
-              onClick={() => {
-                // Your Google login logic here
-                console.log('Google Sign-In clicked');
-              }}
-              className="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              <img
-                className="h-5 w-5"
-                src="https://www.svgrepo.com/show/355037/google.svg"
-                alt="Google logo"
+            <div className="w-full flex justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  if (credentialResponse.credential) {
+                    dispatch(googleLogin({ 
+                      idToken: credentialResponse.credential,
+                      rememberMe: credentials.rememberMe 
+                    })).unwrap()
+                    .then(() => {
+                      setLoginAttempts(0);
+                      navigate('/dashboard');
+                    })
+                    .catch((error) => {
+                      const newAttempts = loginAttempts + 1;
+                      setLoginAttempts(newAttempts);
+                      
+                      if (newAttempts >= 5) {
+                        const lockDuration = 1 * 60 * 1000; // 1 minutes
+                        const lockedUntil = Date.now() + lockDuration;
+                        localStorage.setItem('loginLockedUntil', lockedUntil.toString());
+                        setIsLocked(true);
+                        setLockTimer(lockDuration / 1000);
+                      }
+                    });
+                  }
+                }}
+                onError={() => {
+                  console.log('Google Login Failed');
+                }}
+                useOneTap
+                theme="outline"
+                size="large"
+                text="continue_with"
+                shape="rectangular"
+                locale="en"
               />
-              Continue with Google
-            </button>
+            </div>
           </div>
 
         </form>

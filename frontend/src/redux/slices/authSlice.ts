@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authApi } from 'api/auth.api';
+import { googleAuthApi } from 'api/googleAuth.api';
 import api from 'api/config';
 import axios from 'axios';
-import { get } from 'http';
 
 // --- Constants for storage keys ---
 const STORAGE_KEYS = {
@@ -156,6 +156,38 @@ export const login = createAsyncThunk(
   }
 );
 
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (
+    { idToken, rememberMe = false }: { idToken: string; rememberMe?: boolean },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await googleAuthApi.login(idToken);
+      const { token, refreshToken, user } = response;
+
+      if (rememberMe) {
+        localStorage.setItem(STORAGE_KEYS.token, token);
+        localStorage.setItem(STORAGE_KEYS.refreshToken, refreshToken);
+        localStorage.setItem(STORAGE_KEYS.rememberMe, 'true');
+        localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+      } else {
+        sessionStorage.setItem(STORAGE_KEYS.token, token);
+        sessionStorage.setItem(STORAGE_KEYS.refreshToken, refreshToken);
+        localStorage.setItem(STORAGE_KEYS.rememberMe, 'false');
+        sessionStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+      }
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      return { token, refreshToken, user };
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Google login failed.';
+      return rejectWithValue(message);
+    }
+  }
+);
+
 // export const refreshToken = createAsyncThunk(
 //   'auth/refreshToken',
 //   async (_, { rejectWithValue }) => {
@@ -222,6 +254,22 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(googleLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.refreshToken = action.payload.refreshToken;
+        state.error = null;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

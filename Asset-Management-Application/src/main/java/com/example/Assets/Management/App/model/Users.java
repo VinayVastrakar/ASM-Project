@@ -27,4 +27,9 @@ public class Users {
 
     @Enumerated(EnumType.STRING)
     private Status status;
+    
+    // Google OAuth fields
+    private String googleId;
+    private String profilePicture;
+    private String authProvider; // "LOCAL", "GOOGLE"
 }

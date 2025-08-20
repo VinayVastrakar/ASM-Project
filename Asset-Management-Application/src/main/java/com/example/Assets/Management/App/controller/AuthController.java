@@ -8,6 +8,7 @@ import com.example.Assets.Management.App.security.JwtUtil;
 import com.example.Assets.Management.App.service.EmailService;
 import com.example.Assets.Management.App.service.OtpService;
 import com.example.Assets.Management.App.service.SmsService;
+import com.example.Assets.Management.App.service.GoogleOAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -45,6 +46,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+    
+    @Autowired
+    private GoogleOAuthService googleOAuthService;
 
     @PostMapping("/register")
     @Operation(summary = "User Registeration")
@@ -209,5 +213,41 @@ public class AuthController {
             ),
             "message", "Token refreshed successfully"
         );
+    }
+
+    @PostMapping("/google-login")
+    @Operation(summary = "Google OAuth Login")
+    public Map<String, Object> googleLogin(@RequestBody Map<String, String> payload) {
+        try {
+            String idToken = payload.get("idToken");
+            if (idToken == null || idToken.trim().isEmpty()) {
+                return Map.of("error", "Google ID token is required");
+            }
+        
+            // Verify Google token and get/create user
+            Users user = googleOAuthService.verifyGoogleToken(idToken);
+            
+            if (user.getStatus() != Status.Active) {
+                return Map.of("error", "User account is not active");
+            }
+            
+            // Generate JWT tokens
+            String token = jwtUtil.generateToken(user.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+            return Map.of(
+                "token", token,
+                "refreshToken", refreshToken,
+                "user", Map.of(
+                    "id", user.getId(),
+                    "email", user.getEmail(),
+                    "name", user.getName(),
+                    "role", user.getRole(),
+                    "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : "",
+                    "authProvider", user.getAuthProvider()
+                )
+            );
+        } catch (Exception e) {
+            return Map.of("error", e.getMessage());
+        }
     }
 }
