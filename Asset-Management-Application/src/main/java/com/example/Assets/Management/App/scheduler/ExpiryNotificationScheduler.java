@@ -9,6 +9,7 @@ import com.example.Assets.Management.App.repository.UserRepository;
 import com.example.Assets.Management.App.service.EmailService;
 // import com.example.Assets.Management.App.service.SmsService;
 import com.example.Assets.Management.App.Enums.Role;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,60 +33,80 @@ public class ExpiryNotificationScheduler {
     @Autowired
     private UserRepository userRepository;
 
-    // Runs every day at midnight
+    // Runs every day at 12:59 PM
     @Scheduled(cron = "0 59 12 * * ?")
+    @Transactional(readOnly = true)
     public void checkExpiringAssets() {
-        LocalDate now = LocalDate.now();
-        LocalDate soon = now.plusDays(30);
-        
-        // Get all purchase histories that are expiring soon and have notifications enabled
-        List<PurchaseHistory> expiringHistories = purchaseHistoryRepository.findByExpiryDateBetween(now, soon)
-            .stream()
-            .filter(history -> "Yes".equalsIgnoreCase(history.getNotify()))
-            .collect(Collectors.toList());
+        try {
+            LocalDate now = LocalDate.now();
+            LocalDate soon = now.plusDays(30);
+            
+            // Get all purchase histories that are expiring soon and have notifications enabled
+            List<PurchaseHistory> expiringHistories = purchaseHistoryRepository.findByExpiryDateBetween(now, soon)
+                .stream()
+                .filter(history -> "Yes".equalsIgnoreCase(history.getNotify()))
+                .collect(Collectors.toList());
 
-        // Get admin emails for CC
-        List<String> adminEmails = userRepository.findByRole(Role.ADMIN)
-                                    .stream()
-                                    .map(Users::getEmail)
-                                    .collect(Collectors.toList());
-        // for (Asset asset : expiringAssets) {
-            // Send to assigned user
-            // String userEmail = asset.getAssignedToUser().getEmail();
-            // String subject = "Asset Expiry Alert: " + asset.getName();
-            // String text = "The asset '" + asset.getName() + "' is expiring on " + asset.getExpiryDate();
-            // String mobileNumber = asset.getAssignedToUser().getMobileNumber();
-            // emailService.sendEmailWithCc(userEmail,adminEmails, subject, text);
-
-        for (PurchaseHistory history : expiringHistories) {
-            Asset asset = history.getAsset();
-            String subject = "Asset Expiry Alert: " + asset.getName();
-            String baseText = String.format(
-                "The asset '%s' is expiring on %s\nPurchase Date: %s\nWarranty Period: %s months",
-                asset.getName(),
-                history.getExpiryDate(),
-                history.getPurchaseDate(),
-                history.getWarrantyPeriod()
-            );
-
-            if (asset.getAssignedToUser() != null) {
-                // Case 1: Asset has assigned user - send to user with admins in CC
-                String userEmail = asset.getAssignedToUser().getEmail();
-                emailService.sendEmailWithCc(userEmail, adminEmails, subject, baseText);
-            } else {
-                // Case 2: Asset is unassigned - send only to admins
-                String adminText = baseText + "\n\nNote: This asset is currently unassigned.";
-                String adminSubject = "[Unassigned] " + subject;
-                emailService.sendEmailToMultipleRecipients(adminEmails, adminSubject, adminText);
+            if (expiringHistories.isEmpty()) {
+                System.out.println("No assets expiring in the next 30 days.");
+                return;
             }
-            // Send to admin
-            // String adminEmail = "your_email@gmail.com"; // Get this from application.yml
-            // String adminSubject = "Admin - Asset Expiry Alert: " + asset.getName(); 
-            // String adminText = "The asset '" + asset.getName() + "' assigned to " + 
-            //                  asset.getAssignedToUser().getName() + " is expiring on " + asset.getExpiryDate();
-            // emailService.sendEmail(adminEmail, adminSubject, adminText);
 
-            // smsService.sendSms(mobileNumber, text);
+            // Get admin emails for CC
+            List<String> adminEmails = userRepository.findByRole(Role.ADMIN)
+                                        .stream()
+                                        .map(Users::getEmail)
+                                        .collect(Collectors.toList());
+
+            if (adminEmails.isEmpty()) {
+                System.err.println("Warning: No admin users found for CC notifications");
+            }
+
+            int notificationsSent = 0;
+            for (PurchaseHistory history : expiringHistories) {
+                Asset asset = history.getAsset();
+                String subject = "Asset Expiry Alert: " + asset.getName();
+                String baseText = String.format(
+                    "The asset '%s' is expiring on %s\nPurchase Date: %s\nWarranty Period: %s months",
+                    asset.getName(),
+                    history.getExpiryDate(),
+                    history.getPurchaseDate(),
+                    history.getWarrantyPeriod()
+                );
+
+                try {
+                    if (asset.getAssignedToUser() != null) {
+                        // Case 1: Asset has assigned user - send to user with admins in CC
+                        String userEmail = asset.getAssignedToUser().getEmail();
+                        emailService.sendEmailWithCc(userEmail, adminEmails, subject, baseText);
+                        
+                        // Send SMS to assigned user if mobile number is available
+                        // String mobileNumber = asset.getAssignedToUser().getMobileNumber();
+                        // if (mobileNumber != null && !mobileNumber.trim().isEmpty()) {
+                        //     String smsText = String.format("Asset '%s' expires on %s", 
+                        //                                   asset.getName(), history.getExpiryDate());
+                        //     smsService.sendSms(mobileNumber, smsText);
+                        // }
+                    } else {
+                        // Case 2: Asset is unassigned - send only to admins
+                        String adminText = baseText + "\n\nNote: This asset is currently unassigned.";
+                        String adminSubject = "[Unassigned] " + subject;
+                        emailService.sendEmailToMultipleRecipients(adminEmails, adminSubject, adminText);
+                        // No SMS for unassigned assets
+                    }
+                    notificationsSent++;
+                } catch (Exception emailException) {
+                    System.err.println("Failed to send notification for asset: " + asset.getName() + 
+                                     ". Error: " + emailException.getMessage());
+                }
+            }
+            
+            System.out.println("Successfully sent " + notificationsSent + " expiry notifications out of " + 
+                             expiringHistories.size() + " expiring assets.");
+            
+        } catch (Exception e) {
+            System.err.println("Failed to check expiring assets: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

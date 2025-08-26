@@ -4,6 +4,7 @@ import com.example.Assets.Management.App.repository.OtpTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -24,10 +25,18 @@ public class OtpCleanupService {
 //        otpTokenRepository.deleteAll(expiredTokens);
 //        System.out.println("Cleaned up " + expiredTokens.size() + " expired OTPs");
 //    }
-
+    
+    // Runs every day at noon (12 PM)
     @Scheduled(cron = "0 0 12 * * *")
+    @Transactional
     public void cleanExpiredOtps() {
-        otpTokenRepository.deleteByExpiryBefore(LocalDateTime.now());
+        try {
+            int deletedCount = otpTokenRepository.deleteByExpiryBefore(LocalDateTime.now());
+            System.out.println("Cleaned up " + deletedCount + " expired OTPs");
+        } catch (Exception e) {
+            System.err.println("Failed to clean expired OTPs: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 
