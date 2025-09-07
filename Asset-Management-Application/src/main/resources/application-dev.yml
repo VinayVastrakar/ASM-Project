@@ -1,5 +1,12 @@
-# application-dev.yml
+# Development Profile Configuration
 spring:
+  # Database configuration (can be overridden by environment variables)
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/assetdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1234}
+  
+  # Email configuration
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
@@ -15,5 +22,26 @@ spring:
 # Development-specific settings
 logging:
   level:
-    com.example.Assets.Management.App: DEBUG
-    org.springframework.mail: DEBUG 
+    com.example.Assets.Management.App: ${LOGGING_LEVEL_COM_EXAMPLE_ASSETS_MANAGEMENT_APP:DEBUG}
+    org.springframework.mail: ${LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_MAIL:DEBUG}
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# JWT Configuration for development
+jwt:
+  secret: ${JWT_SECRET:asdfgvhgvgkhafjhcaaaaaaaaaaaabbbbbbbbdjhhheeeeeeeeeeejjjjjjjjjjjkkkkkkkkkkkkkkkkkssssssssssskaaaaaaaaaaaaaaaaaaaaaaadddddddasdhbauhegfahdcbsjdvaghsdvaskjhsvgvrysecretkeysdscscscscscscscscscscscscscscscsdccccccccccccccccccccccccccccccccccccccccrfbfdgndfgsdgnnnnnnfsngsgnsgnsdljkfvbahvbjkdfbjasdhfajkldvbjhfbhsdbfvdfhlvafbvahldbfgvfhhadfbadrhbjkvndfkjnvjatgiah}
+  expiration: ${JWT_EXPIRATION:43200000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:172800000}
+
+# Google OAuth Configuration
+google:
+  client:
+    id: ${GOOGLE_CLIENT_ID}
+
+# Server configuration for development
+server:
+  port: ${SERVER_PORT:8080}
+
+# CORS Configuration for development
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000} 
