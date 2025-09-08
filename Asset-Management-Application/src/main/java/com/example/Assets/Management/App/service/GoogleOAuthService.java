@@ -26,13 +26,13 @@ public class GoogleOAuthService {
             // Verify the token with Google
             String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idTokenString;
             String response = restTemplate.getForObject(url, String.class);
-            
+
             if (response == null) {
                 throw new RuntimeException("Failed to verify token with Google");
             }
 
             JsonNode tokenInfo = objectMapper.readTree(response);
-            
+
             // Check if token is valid
             if (tokenInfo.has("error")) {
                 throw new RuntimeException("Invalid Google token: " + tokenInfo.get("error").asText());
@@ -51,29 +51,19 @@ public class GoogleOAuthService {
 
             // Check if user exists
             Optional<Users> existingUser = userRepository.findByEmail(email);
-            
-            if (existingUser.isPresent()) {
-                Users user = existingUser.get();
-                // Update Google-specific fields if user exists
-                user.setGoogleId(userId);
-                user.setProfilePicture(picture);
-                user.setAuthProvider("GOOGLE");
-                return userRepository.save(user);
-            } else {
-                // Create new user
-                Users newUser = new Users();
-                newUser.setEmail(email);
-                newUser.setName(name);
-                newUser.setGoogleId(userId);
-                newUser.setProfilePicture(picture);
-                newUser.setAuthProvider("GOOGLE");
-                newUser.setRole(Role.USER); // Default role
-                newUser.setStatus(Status.Active);
-                // Set a dummy password for Google users (they won't use it)
-                newUser.setPassword("GOOGLE_AUTH_USER");
-                
-                return userRepository.save(newUser);
+
+            if (existingUser.isEmpty()) {
+                throw new RuntimeException("User not registered. Please contact admin.");
             }
+
+            // Update user info if needed
+            Users user = existingUser.get();
+            user.setGoogleId(userId);
+            user.setProfilePicture(picture);
+            user.setAuthProvider("GOOGLE");
+
+            return userRepository.save(user);
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to verify Google token: " + e.getMessage());
         }

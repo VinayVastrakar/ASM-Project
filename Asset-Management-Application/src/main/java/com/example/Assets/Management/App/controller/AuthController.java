@@ -223,31 +223,36 @@ public class AuthController {
             if (idToken == null || idToken.trim().isEmpty()) {
                 return Map.of("error", "Google ID token is required");
             }
-        
-            // Verify Google token and get/create user
+
+            // Verify Google token and get user
             Users user = googleOAuthService.verifyGoogleToken(idToken);
-            
+
             if (user.getStatus() != Status.Active) {
                 return Map.of("error", "User account is not active");
             }
-            
+
             // Generate JWT tokens
             String token = jwtUtil.generateToken(user.getEmail());
             String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
             return Map.of(
-                "token", token,
-                "refreshToken", refreshToken,
-                "user", Map.of(
-                    "id", user.getId(),
-                    "email", user.getEmail(),
-                    "name", user.getName(),
-                    "role", user.getRole(),
-                    "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : "",
-                    "authProvider", user.getAuthProvider()
-                )
+                    "token", token,
+                    "refreshToken", refreshToken,
+                    "user", Map.of(
+                            "id", user.getId(),
+                            "email", user.getEmail(),
+                            "name", user.getName(),
+                            "role", user.getRole(),
+                            "profilePicture", user.getProfilePicture() != null ? user.getProfilePicture() : "",
+                            "authProvider", user.getAuthProvider()
+                    )
             );
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            // Handle expected runtime issues like invalid token, user not found
             return Map.of("error", e.getMessage());
+        } catch (Exception e) {
+            // Handle unexpected errors
+            return Map.of("error", "An unexpected error occurred");
         }
     }
 }
