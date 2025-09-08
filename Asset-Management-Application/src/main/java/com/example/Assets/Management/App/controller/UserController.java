@@ -103,7 +103,7 @@ public class UserController {
                 "email", user.getEmail(),
                 "name", user.getName(),
                 "role", user.getRole(),
-                "mobileNumber",user.getMobileNumber(),
+                "mobileNumber",user.getMobileNumber() != null ? user.getMobileNumber() : "",
                 "status",user.getStatus()
         );
 
