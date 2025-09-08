@@ -13,7 +13,8 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedOrigin("http://localhost:3000"); // Your React frontend URL
-        config.addAllowedOrigin("http://172.27.236.104:3000"); 
+        config.addAllowedOrigin("http://172.27.236.104:3000");
+        config.addAllowedOrigin("https://asm-project.onrender.com");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);
