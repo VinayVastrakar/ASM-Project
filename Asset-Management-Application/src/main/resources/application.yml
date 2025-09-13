@@ -55,6 +55,15 @@ google:
   client:
     id: ${GOOGLE_CLIENT_ID}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health   # expose only the health endpoint
+  endpoint:
+    health:
+      show-details: always   # show DB + disk status in health check
+
 # Logging Configuration
 logging:
   level:
