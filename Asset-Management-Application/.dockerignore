@@ -27,6 +27,8 @@ Dockerfile
 docker-compose.yml
 .dockerignore
 
+prevDockerfile
+
 # Documentation
 README.md
 docs/
