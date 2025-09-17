@@ -219,17 +219,22 @@ public class AssetService {
     public Map<String, String> uploadAssetImage(MultipartFile file, Asset asset) {
         try {
             Map<String, Object> uploadOptions = new HashMap<>();
-            if (asset.getImagePublicId() != null) {
-                uploadOptions.put("public_id", asset.getImagePublicId());
+            String publicId = asset.getImagePublicId();
+
+            if (publicId != null) {
+                uploadOptions.put("public_id", publicId);
                 uploadOptions.put("overwrite", true);
                 uploadOptions.put("invalidate", true);
+            } else {
+                // Set folder structure for new uploads (parent/child)
+                uploadOptions.put("folder", "asset-management-system/asset_image");
             }
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadOptions);
             String imageUrl = uploadResult.get("secure_url").toString();
-            String publicId = uploadResult.get("public_id").toString();
+            String newPublicId = uploadResult.get("public_id").toString();
             return Map.of(
                     "imageUrl", imageUrl,
-                    "publicId", publicId);
+                    "publicId", newPublicId);
         } catch (Exception e) {
             throw new RuntimeException("Image upload failed", e);
         }

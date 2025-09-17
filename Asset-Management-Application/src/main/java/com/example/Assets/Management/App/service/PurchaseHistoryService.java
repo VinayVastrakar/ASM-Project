@@ -115,7 +115,7 @@ public class PurchaseHistoryService {
                     file.getBytes(),
                     ObjectUtils.asMap(
                         "resource_type", "raw",
-                        "folder", "bills/",
+                        "folder", "asset-management-system/bills",
                         "public_id", "bill_" + System.currentTimeMillis(),
                         "format", "pdf",                              // optional, enforces .pdf extension
                         "type", "upload"
@@ -172,7 +172,7 @@ public class PurchaseHistoryService {
                     file.getBytes(),
                     ObjectUtils.asMap(
                         "resource_type", "raw",
-                        "folder", "bills/",
+                        "folder", "asset-management-system/bills",
                         "public_id", "bill_" + id + "_" + System.currentTimeMillis(),
                         "format", "pdf",                              // optional, enforces .pdf extension
                         "type", "upload"
