@@ -4,6 +4,7 @@ import { assetApi } from '../../api/asset.api';
 import { Category } from 'api/category.api';
 import { categoryApi } from '../../api/category.api';
 import { saveAs } from 'file-saver';
+import OptimizedImage from '../common/OptimizedImage';
 
 interface Asset {
   id: number;
@@ -258,7 +259,14 @@ const AssetList: React.FC = () => {
                     <tr key={asset.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {asset.imageUrl ? (
-                          <img src={asset.imageUrl} alt={asset.name} className="h-14 w-12 object-cover rounded" />
+                          <OptimizedImage 
+                            src={asset.imageUrl} 
+                            alt={asset.name} 
+                            size="thumbnail"
+                            width={48}
+                            height={56}
+                            className="rounded"
+                          />
                         ) : (
                           <span className="text-gray-400 text-sm">No Image</span>
                         )}

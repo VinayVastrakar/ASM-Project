@@ -6,6 +6,7 @@ import { fetchAssetById } from '../../redux/slices/assetSlice';
 import { assetApi } from 'api/asset.api';
 import userApi from 'api/user.api';
 import { saveAs } from 'file-saver';
+import OptimizedImage from '../common/OptimizedImage';
 
 const AssetView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,7 +14,8 @@ const AssetView: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentAsset: asset, loading, error } = useSelector((state: RootState) => state.assets);
 
-  const [isModalOpen, setModalOpen] = useState(false);
+  // State for assignment modal
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [users, setUsers] = useState<{ id: number; name: string }[]>([]);
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [assigning, setAssigning] = useState(false);
@@ -31,8 +33,9 @@ const AssetView: React.FC = () => {
     }
   }, [dispatch, id]);
 
-  const openModal = async () => {
-    setModalOpen(true);
+  // Separate function for opening assignment modal
+  const openAssignModal = async () => {
+    setIsAssignModalOpen(true);
     try {
       const res = await userApi.getActiveUsers();
       setUsers(res.data.users);
@@ -40,6 +43,7 @@ const AssetView: React.FC = () => {
       console.error('Failed to load users', err);
     }
   };
+
 
   const handleExport = async () => {
     if (!asset?.id) return;
@@ -86,7 +90,7 @@ const AssetView: React.FC = () => {
     setAssigning(true);
     try {
       await assetApi.assignAssetToUser(asset.id, selectedUser);
-      setModalOpen(false);
+      setIsAssignModalOpen(false);
       // dispatch(fetchAssetById(asset.id)); // refresh asset view
       navigate('/assets');
     } catch (err) {
@@ -192,7 +196,7 @@ const AssetView: React.FC = () => {
 
             {asset.status === 'AVAILABLE' && (
               <button
-                onClick={openModal}
+                onClick={openAssignModal}
                 className="px-4 py-2 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition"
               >
                 Assign User
@@ -244,9 +248,12 @@ const AssetView: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {asset.imageUrl && (
             <div className="h-96 overflow-hidden">
-              <img
+              <OptimizedImage
                 src={asset.imageUrl}
                 alt={asset.name}
+                size="medium"
+                width={800}
+                height={384}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -281,8 +288,8 @@ const AssetView: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
+      {/* Assignment Modal */}
+      {isAssignModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
             <h2 className="text-xl font-semibold mb-4">Assign User</h2>
@@ -301,7 +308,7 @@ const AssetView: React.FC = () => {
 
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => setModalOpen(false)}
+                onClick={() => setIsAssignModalOpen(false)}
                 className="px-4 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
               >
                 Cancel
