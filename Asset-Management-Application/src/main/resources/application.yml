@@ -72,6 +72,9 @@ management:
   endpoint:
     health:
       show-details: always   # show DB + disk status in health check
+  health:
+    mail:
+      enabled: false # disable mail health check (SMTP blocked on Render free tier)
 
 # Logging Configuration
 logging:
