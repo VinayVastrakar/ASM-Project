@@ -19,6 +19,15 @@ spring:
           starttls:
             enable: true
 
+# Brevo API Configuration for Development
+brevo:
+  enabled: ${BREVO_ENABLED:true}
+  api:
+    key: ${BREVO_API_KEY}
+  sender:
+    email: ${BREVO_SENDER_EMAIL}
+    name: ${BREVO_SENDER_NAME:Asset Management App - Dev}
+
 # Development-specific settings
 logging:
   level:
