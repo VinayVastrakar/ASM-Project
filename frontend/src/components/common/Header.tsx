@@ -15,7 +15,7 @@ const Header: React.FC = () => {
           <Link to="/dashboard">
             <img
               className="h-16 w-auto cursor-pointer"
-              src="/Assets/Gloitel.jpg"
+              src="/Assets/Gloitel.png"
               alt="Company Logo"
             />
           </Link>

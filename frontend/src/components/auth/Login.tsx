@@ -95,7 +95,7 @@ const Login: React.FC = () => {
         <div>
           <img
             className="mx-auto h-28 w-auto"
-            src="/Assets/Gloitel.jpg"
+            src="/Assets/Gloitel.png"
             alt="Company Logo"
           />
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
