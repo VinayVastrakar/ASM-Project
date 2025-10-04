@@ -1,0 +1,43 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.temp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build directories
+/target/
+/node_modules/
+/build/
+/dist/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Logs
+logs/
+*.log
+
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# Frontend specific
+coverage/
+.cache/
+*.swp
+*.swo
+
+# Docker
+.dockerignore
+Dockerfile
+docker-compose*.yml
