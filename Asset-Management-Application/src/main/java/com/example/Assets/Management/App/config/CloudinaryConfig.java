@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
+import org.springframework.util.StringUtils;
+
 import java.util.Map;
+import java.util.HashMap;
 
 @Configuration
 public class CloudinaryConfig {
@@ -23,10 +25,19 @@ public class CloudinaryConfig {
 
     @Bean
     public Cloudinary cloudinary() {
+        if (!StringUtils.hasText(cloudName) ||
+                !StringUtils.hasText(apiKey) ||
+                !StringUtils.hasText(apiSecret)) {
+            throw new IllegalStateException(
+                    "Cloudinary configuration is missing. Please check your application.properties"
+            );
+        }
+
         Map<String, String> config = new HashMap<>();
         config.put("cloud_name", cloudName);
         config.put("api_key", apiKey);
         config.put("api_secret", apiSecret);
+
         return new Cloudinary(config);
     }
 }
