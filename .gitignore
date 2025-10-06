@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+!.env.*stack
+!.env.testing
+!.env.production
+!.env.*backend
 
 # Build directories
 /target/
