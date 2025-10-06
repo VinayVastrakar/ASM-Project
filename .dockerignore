@@ -1,0 +1,55 @@
+# Git and version control
+.git
+.gitignore
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+
+# Build artifacts and dependencies
+target/
+node_modules/
+build/
+dist/
+coverage/
+.cache/
+
+# Environment files (security)
+.env
+.env.*
+!.env.example
+!.env.docker
+
+# Docker files (prevent recursion)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Maven wrapper (not needed in container)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Frontend specific
+.parcel-cache/
+.next/
+.nuxt/
+public/static/
+
+# Optional: Keep essential docs but exclude deployment guides
+README.md
+# DEPLOYMENT.md
+# *.md
