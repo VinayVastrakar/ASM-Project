@@ -39,7 +39,7 @@ public class UserController {
         }
 
     @GetMapping
-    @Operation(summary = "Get All Users (Paginated)")
+    @Operation(summary = "Get All Users & Serch User(Paginated)")
     public Map<String, Object> getUserDetails(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,

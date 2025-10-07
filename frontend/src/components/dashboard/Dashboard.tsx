@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { RootState } from "../../redux/store";
 import { dashboardApi, DashboardStats } from "../../api/dashboard.api";
 import { Alert } from "../common/Alert";
 
 const Dashboard: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,60 @@ const Dashboard: React.FC = () => {
     };
     fetchStats();
   }, []);
+
+  const handleStatClick = (statType: string, count: number) => {
+    if (count > 0) {
+      // Navigate to appropriate route based on stat type
+      switch (statType) {
+        case 'totalAssets':
+          navigate('/assets');
+          break;
+        case 'totalUsers':
+          navigate('/users');
+          break;
+        case 'expiringSoon':
+          navigate('/assets?filter=expiring-soon');
+          break;
+        case 'expired':
+          navigate('/assets?filter=expired');
+          break;
+        case 'assigned':
+          navigate('/assets?filter=assigned');
+          break;
+        case 'nonAssigned':
+          navigate('/assets?filter=non-assigned');
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const StatCard: React.FC<{
+    title: string;
+    value: number;
+    statType: string;
+  }> = ({ title, value, statType }) => {
+    const isClickable = value > 0;
+    
+    return (
+      <div
+        className={`bg-white p-6 rounded-lg shadow-md ${
+          isClickable
+            ? 'cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200'
+            : 'cursor-default'
+        }`}
+        onClick={() => handleStatClick(statType, value)}
+      >
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+          {title}
+        </h2>
+        <p className={`text-3xl font-bold ${isClickable ? 'text-primary' : 'text-gray-400'}`}>
+          {value}
+        </p>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -60,59 +116,41 @@ const Dashboard: React.FC = () => {
 
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Total Assets
-            </h2>
-            <p className="text-3xl font-bold text-primary">
-              {stats.totalAssets}
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Total Users
-            </h2>
-            <p className="text-3xl font-bold text-primary">
-              {stats.totalUsers}
-            </p>
-          </div>
+          <StatCard
+            title="Total Assets"
+            value={stats.totalAssets}
+            statType="totalAssets"
+          />
+          <StatCard
+            title="Total Users"
+            value={stats.totalUsers}
+            statType="totalUsers"
+          />
           {user?.role === "ADMIN" && (
             <>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Expiring Soon Assets
-                </h2>
-                <p className="text-3xl font-bold text-primary">
-                  {stats.expiringSoonCount}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Expired Assets
-                </h2>
-                <p className="text-3xl font-bold text-primary">
-                  {stats.expiredAssets}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Assigned Assets
-                </h2>
-                <p className="text-3xl font-bold text-primary">
-                  {stats.assignedAssets}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                  Non Assigned Assets
-                </h2>
-                <p className="text-3xl font-bold text-primary">
-                  {stats.nonAssignedAssets}
-                </p>
-              </div>
+              <StatCard
+                title="Expiring Soon Assets"
+                value={stats.expiringSoonCount}
+                statType="expiringSoon"
+              />
+              <StatCard
+                title="Expired Assets"
+                value={stats.expiredAssets}
+                statType="expired"
+              />
+              <StatCard
+                title="Assigned Assets"
+                value={stats.assignedAssets}
+                statType="assigned"
+              />
+              <StatCard
+                title="Non Assigned Assets"
+                value={stats.nonAssignedAssets}
+                statType="nonAssigned"
+              />
             </>
           )}
-           <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Assets by Category
             </h2>
