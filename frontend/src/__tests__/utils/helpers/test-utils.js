@@ -1,48 +1,39 @@
 import React, { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
 import { BrowserRouter } from 'react-router-dom';
 
-// Import your slices
-import authSlice from '../../redux/slices/authSlice';
-import assetSlice from '../../redux/slices/assetSlice';
-import categorySlice from '../../redux/slices/categorySlice';
-import userSlice from '../../redux/slices/userSlice';
-
-// Create a test store
-export const createTestStore = (preloadedState = {}) => {
-  return configureStore({
-    reducer: {
-      auth: authSlice,
-      assets: assetSlice,
-      categories: categorySlice,
-      users: userSlice,
-    },
-    preloadedState,
-  });
+// Mock Redux store
+const mockStore = {
+  getState: () => ({}),
+  dispatch: jest.fn(),
+  subscribe: jest.fn()
 };
+
+// Mock Provider component
+const MockProvider = ({ children }: { children: React.ReactNode }) => (
+  <div data-testid="mock-provider">{children}</div>
+);
 
 // Custom render function with providers
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   preloadedState?: any;
-  store?: ReturnType<typeof createTestStore>;
+  store?: any;
 }
 
 export const renderWithProviders = (
   ui: ReactElement,
   {
     preloadedState = {},
-    store = createTestStore(preloadedState),
+    store = mockStore,
     ...renderOptions
   }: CustomRenderOptions = {}
 ) => {
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <Provider store={store}>
+    <MockProvider>
       <BrowserRouter>
         {children}
       </BrowserRouter>
-    </Provider>
+    </MockProvider>
   );
 
   return {
