@@ -1,0 +1,88 @@
+# Test Profile Configuration
+spring:
+  # Test Database configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/testdb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA configuration for tests
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  # Disable mail for tests
+  mail:
+    host: localhost
+    port: 25
+    username: test@example.com
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+# Disable external services for tests
+brevo:
+  enabled: false
+  api:
+    key: test-key
+  sender:
+    email: test@example.com
+    name: Test App
+
+# JWT Configuration for tests
+jwt:
+  secret: test-jwt-secret-key-for-testing-only
+  expiration: 3600000
+  refresh-expiration: 7200000
+
+# Disable Cloudinary for tests
+cloudinary:
+  cloud-name: test-cloud
+  api-key: test-key
+  api-secret: test-secret
+
+# Google OAuth Configuration for tests
+google:
+  client:
+    id: test-google-client-id
+
+# Test-specific logging
+logging:
+  level:
+    root: WARN
+    com.example.Assets.Management.App: INFO
+    org.springframework.mail: WARN
+    org.hibernate.SQL: WARN
+
+# Server configuration for tests
+server:
+  port: 0  # Random port for tests
+
+# CORS Configuration for tests
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+
+# Disable health checks for external services
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+  health:
+    mail:
+      enabled: false
+    db:
+      enabled: true

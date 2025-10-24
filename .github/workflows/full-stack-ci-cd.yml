@@ -2,9 +2,9 @@ name: Full Stack CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
 
 env:
   JAVA_VERSION: '21'
@@ -56,6 +56,23 @@ jobs:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/testdb
         SPRING_DATASOURCE_USERNAME: postgres
         SPRING_DATASOURCE_PASSWORD: postgres
+        # Required environment variables for tests
+        JWT_SECRET: test-jwt-secret-key-for-testing-only
+        JWT_EXPIRATION: 3600000
+        JWT_REFRESH_EXPIRATION: 7200000
+        MAIL_HOST: localhost
+        MAIL_PORT: 25
+        MAIL_USERNAME: test@example.com
+        MAIL_PASSWORD: test
+        BREVO_ENABLED: false
+        BREVO_API_KEY: test-key
+        BREVO_SENDER_EMAIL: test@example.com
+        BREVO_SENDER_NAME: Test App
+        CLOUDINARY_CLOUD_NAME: test-cloud
+        CLOUDINARY_API_KEY: test-key
+        CLOUDINARY_API_SECRET: test-secret
+        GOOGLE_CLIENT_ID: test-google-client-id
+        CORS_ALLOWED_ORIGINS: http://localhost:3000,http://localhost:8080
 
     - name: Build backend application
       working-directory: Asset-Management-Application
