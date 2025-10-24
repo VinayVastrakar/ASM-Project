@@ -1,17 +1,17 @@
 module.exports = {
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/utils/helpers/setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/src/test-utils/setupTests.js'], // Updated path
   testMatch: [
     '<rootDir>/src/__tests__/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/__tests__/**/*.test.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}'
   ],
   testPathIgnorePatterns: [
-    '<rootDir>/node_modules/',
-    '<rootDir>/build/',
-    '<rootDir>/src/__tests__/utils/',
     '/node_modules/',
-    '/build/'
+    '/build/',
+    '/src/__tests__/utils/helpers/', // Add this line
+    'setupTests.js',                   // Add this line
+    'testUtils.js'
   ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
