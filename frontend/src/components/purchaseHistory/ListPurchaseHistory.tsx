@@ -26,7 +26,7 @@ const ListPurchaseHistory: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to fetch assets');
     }
-  }, []);
+  }, [page]);
 
   const fetchData = useCallback(async () => {
     // Abort previous request if any

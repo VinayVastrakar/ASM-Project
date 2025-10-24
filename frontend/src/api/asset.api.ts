@@ -1,7 +1,5 @@
 import api from './config';
 import { Asset } from '../redux/slices/assetSlice';
-import { parsePath } from 'react-router-dom';
-import { ApiProvider } from '@reduxjs/toolkit/query/react';
 
 export interface AssetQueryParams {
   page?: number;

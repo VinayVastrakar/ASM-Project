@@ -1,6 +1,5 @@
 import api from './config';
 import { ApiResponse } from '../types/api.types';
-import { Api } from '@reduxjs/toolkit/query';
 
 export interface PurchaseHistory {
   id: number;

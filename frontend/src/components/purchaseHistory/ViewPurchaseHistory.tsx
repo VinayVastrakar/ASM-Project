@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { purchaseHistoryApi } from '../../api/purchaseHistory.api';
-import { assetApi } from '../../api/asset.api';
 
 interface PurchaseHistory {
   id: number;

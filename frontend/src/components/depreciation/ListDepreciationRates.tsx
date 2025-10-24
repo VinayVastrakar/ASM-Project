@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { depreciationRateApi, DepreciationRate, DepreciationRateQueryParams, PaginatedResponse } from '../../api/depreciationRate.api';
-import { categoryApi, Category } from '../../api/category.api';
+import { depreciationRateApi, DepreciationRate, DepreciationRateQueryParams} from '../../api/depreciationRate.api';
+import { categoryApi} from '../../api/category.api';
 
 const PAGE_SIZE = 10;
 

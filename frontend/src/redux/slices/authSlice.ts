@@ -26,7 +26,7 @@ interface AuthResponse {
   user: User;
 }
 
-interface RefreshTokenResponse {
+interface _RefreshTokenResponse {
   token: string;
   refreshToken?: string;
 }

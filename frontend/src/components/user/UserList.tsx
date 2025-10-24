@@ -1,5 +1,5 @@
 // components/UserList.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState ,useCallback} from 'react';
 import { useDispatch } from 'react-redux';
 import { activeUser, inactiveUser } from '../../redux/slices/userSlice';
 import { Link } from 'react-router-dom';
@@ -18,7 +18,7 @@ const UserList: React.FC = () => {
   const [userStatusLoading, setUserStatusLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await userApi.getUsers({ page: page - 1, limit, search: searchQuery });
@@ -29,11 +29,11 @@ const UserList: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, searchQuery]);
 
   useEffect(() => {
     fetchUsers();
-  }, [page, searchQuery]); // Changed dependency from searchTerm to searchQuery
+  }, [fetchUsers]); // Changed dependency from searchTerm to searchQuery
 
   const handleSearch = () => {
     setSearchQuery(searchTerm);
