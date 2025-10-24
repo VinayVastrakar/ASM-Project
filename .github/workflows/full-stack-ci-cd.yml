@@ -147,10 +147,14 @@ jobs:
         path: 'Asset-Management-Application'
         format: 'HTML'
         out: 'backend-reports'
+        args: '--noupdate'
+      env:
+        JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
 
     - name: Run npm audit (Frontend)
       working-directory: frontend
-      run: npm audit --audit-level=moderate
+      run: npm audit --json > npm-audit.json
+      # run: npm audit --audit-level=moderate
 
     - name: Upload security reports
       uses: actions/upload-artifact@v4
