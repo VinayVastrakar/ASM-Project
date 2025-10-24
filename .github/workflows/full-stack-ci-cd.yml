@@ -143,15 +143,15 @@ jobs:
     - name: Run OWASP Dependency Check (Backend) via CLI
       run: |
         curl -sL https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip -o dc.zip
-        unzip -q dc.zip -d dependency-check
-        ./dependency-check/bin/dependency-check.sh \
+        unzip -q dc.zip
+        DC_DIR=$(find . -type d -name "dependency-check*" -maxdepth 1 | head -n 1)
+        chmod +x "$DC_DIR/bin/dependency-check.sh"
+        "$DC_DIR/bin/dependency-check.sh" \
           --project "Asset-Management-Application" \
           --scan "Asset-Management-Application" \
           --format "HTML" \
           --out "backend-reports" \
           --noupdate
-      env:
-        JAVA_HOME: /usr/lib/jvm/java-21-openjdk-amd64
 
     - name: Run npm audit (Frontend)
       working-directory: frontend
