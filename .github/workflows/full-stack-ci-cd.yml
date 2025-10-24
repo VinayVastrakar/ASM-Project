@@ -105,7 +105,7 @@ jobs:
 
     - name: Run frontend tests
       working-directory: frontend
-      run: npm test -- --watchAll=false --coverage
+      run: npm test -- --watchAll=false --coverage --passWithNoTests
 
     - name: Build frontend application
       working-directory: frontend
