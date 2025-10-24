@@ -26,10 +26,6 @@ interface AuthResponse {
   user: User;
 }
 
-interface _RefreshTokenResponse {
-  token: string;
-  refreshToken?: string;
-}
 
 interface AuthState {
   user: User | null;
@@ -187,29 +183,6 @@ export const googleLogin = createAsyncThunk(
     }
   }
 );
-
-// export const refreshToken = createAsyncThunk(
-//   'auth/refreshToken',
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const refreshToken =
-//         localStorage.getItem(STORAGE_KEYS.refreshToken) || sessionStorage.getItem(STORAGE_KEYS.refreshToken);
-//       if (!refreshToken) {
-//         return rejectWithValue('Refresh token missing');
-//       }
-//       const response = await authApi.refreshToken(refreshToken);
-//       const { token } = response.data.data;
-
-//       const storage = localStorage.getItem(STORAGE_KEYS.rememberMe) === 'true' ? localStorage : sessionStorage;
-//       storage.setItem(STORAGE_KEYS.token, token);
-
-//       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-//       return { token };
-//     } catch (error: any) {
-//       return rejectWithValue('Session expired. Please login again.');
-//     }
-//   }
-// );
 
 // --- Slice ---
 const authSlice = createSlice({
