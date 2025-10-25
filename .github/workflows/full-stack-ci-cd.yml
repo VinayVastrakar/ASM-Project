@@ -140,6 +140,12 @@ jobs:
         cache: 'npm'
         cache-dependency-path: frontend/package-lock.json
 
+    - name: Cache OWASP Dependency Check database
+      uses: actions/cache@v4
+      with:
+          path: ~/.dependency-check
+          key: dependency-check-db
+
     - name: Run OWASP Dependency Check (Backend) via CLI
       run: |
         curl -sL https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip -o dc.zip
@@ -151,7 +157,7 @@ jobs:
           --scan "Asset-Management-Application" \
           --format "HTML" \
           --out "backend-reports" \
-          --noupdate
+          --data ~/.dependency-check
 
     - name: Run npm audit (Frontend)
       working-directory: frontend
