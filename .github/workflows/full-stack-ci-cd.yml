@@ -141,6 +141,8 @@ jobs:
         cache-dependency-path: frontend/package-lock.json
 
     - name: Run OWASP Dependency Check (Backend) via CLI
+      env:
+        NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
       run: |
         curl -sL https://github.com/jeremylong/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip -o dc.zip
         unzip -q dc.zip
@@ -150,7 +152,8 @@ jobs:
           --project "Asset-Management-Application" \
           --scan "Asset-Management-Application" \
           --format "HTML" \
-          --out "backend-reports"
+          --out "backend-reports" \
+          --nvdApiKey "$NVD_API_KEY"
 
     - name: Run npm audit (Frontend)
       working-directory: frontend
