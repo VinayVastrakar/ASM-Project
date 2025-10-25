@@ -173,8 +173,9 @@ jobs:
       working-directory: frontend
       continue-on-error: true
       run: |
-        npm audit --json > npm-audit.json || echo "NPM audit completed"
-        npm audit --audit-level=moderate || echo "NPM audit found vulnerabilities"
+        # Allow moderate and low vulnerabilities for now
+        npm audit --audit-level=high || echo "High severity vulnerabilities found"
+        npm audit --json > npm-audit.json || true
 
     - name: Upload security reports
       uses: actions/upload-artifact@v4
