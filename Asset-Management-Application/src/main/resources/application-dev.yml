@@ -38,7 +38,7 @@ logging:
 
 # JWT Configuration for development
 jwt:
-  secret: ${JWT_SECRET:asdfgvhgvgkhafjhcaaaaaaaaaaaabbbbbbbbdjhhheeeeeeeeeeejjjjjjjjjjjkkkkkkkkkkkkkkkkkssssssssssskaaaaaaaaaaaaaaaaaaaaaaadddddddasdhbauhegfahdcbsjdvaghsdvaskjhsvgvrysecretkeysdscscscscscscscscscscscscscscscsdccccccccccccccccccccccccccccccccccccccccrfbfdgndfgsdgnnnnnnfsngsgnsgnsdljkfvbahvbjkdfbjasdhfajkldvbjhfbhsdbfvdfhlvafbvahldbfgvfhhadfbadrhbjkvndfkjnvjatgiah}
+  secret: ${JWT_SECRET:your-jwt-secret-key-here}
   expiration: ${JWT_EXPIRATION:43200000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:172800000}
 

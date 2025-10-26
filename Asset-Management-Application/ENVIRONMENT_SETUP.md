@@ -21,9 +21,9 @@ This document explains how to set up environment variables for the Asset Managem
 ### Database Configuration
 ```bash
 # Production Database (Primary)
-SPRING_DATASOURCE_URL=jdbc:postgresql://103.133.215.182:5432/gloitel_db_ams
-SPRING_DATASOURCE_USERNAME=gloitel
-SPRING_DATASOURCE_PASSWORD=gloitel123
+SPRING_DATASOURCE_URL=jdbc:postgresql://your-db-host:5432/your-database
+SPRING_DATASOURCE_USERNAME=your-db-username
+SPRING_DATASOURCE_PASSWORD=your-db-password
 
 # OR Local Development Database
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/assetdb
