@@ -2,11 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { categoryApi, Category } from '../../api/category.api';
 
 export interface CategoryState {
+  categories: Category[];  // ✅ Add this
   loading: boolean;
   error: string | null;
 }
 
 const initialState: CategoryState = {
+  categories: [],  // ✅ Add this
   loading: false,
   error: null,
 };
@@ -70,53 +72,36 @@ const categorySlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch Categories
-      .addCase(fetchCategories.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchCategories.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(fetchCategories.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to fetch categories';
-      })
-      // Add Category
-      .addCase(addCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(addCategory.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(addCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string || action.error.message || 'Failed to add category';
-      })
-      // Update Category
-      .addCase(updateCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(updateCategory.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(updateCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string || action.error.message || 'Failed to update category';
-      })
-      // Delete Category
-      .addCase(deleteCategory.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteCategory.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(deleteCategory.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Failed to delete category';
-      });
+    .addCase(fetchCategories.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchCategories.fulfilled, (state, action) => {
+      state.loading = false;
+      state.categories = action.payload;  // ✅ Store the categories
+    })
+    .addCase(fetchCategories.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message || 'Failed to fetch categories';
+    })
+    // Add Category
+    .addCase(addCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.categories.push(action.payload);  // ✅ Add new category
+    })
+    // Update Category
+    .addCase(updateCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      const index = state.categories.findIndex(cat => cat.id === action.payload.id);
+      if (index !== -1) {
+        state.categories[index] = action.payload;  // ✅ Update category
+      }
+    })
+    // Delete Category
+    .addCase(deleteCategory.fulfilled, (state, action) => {
+      state.loading = false;
+      state.categories = state.categories.filter(cat => cat.id !== action.payload);  // ✅ Remove category
+    });
   },
 });
 
