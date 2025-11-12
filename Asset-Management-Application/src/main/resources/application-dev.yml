@@ -2,7 +2,7 @@
 spring:
   # Database configuration (can be overridden by environment variables)
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/assetdb}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/gloitel_db_ams}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:1234}
   

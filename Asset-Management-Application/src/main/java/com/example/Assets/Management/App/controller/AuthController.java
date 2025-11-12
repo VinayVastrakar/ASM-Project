@@ -15,11 +15,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 import java.util.*;
@@ -49,6 +52,17 @@ public class AuthController {
     
     @Autowired
     private GoogleOAuthService googleOAuthService;
+
+    /**
+     * Get client IP address
+     */
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0];
+        }
+        return request.getRemoteAddr();
+    }
 
     @PostMapping("/register")
     @Operation(summary = "User Registeration")
@@ -133,63 +147,111 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Forget Password")
-    public Map<String, String> forgotPassword(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
+    @Operation(summary = "Request OTP for password reset")
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @RequestBody Map<String, String> payload,
+            HttpServletRequest request) {
+        try {
+            String email = payload.get("email");
+            String ipAddress = getClientIp(request);
 
-        if (userRepository.findByEmail(email).isEmpty()) {
-            return Map.of("error", "User not found");
+            String message = otpService.generateAndSendOtp(email, ipAddress);
+
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Something went wrong. Please try again."));
         }
+    }
 
-        String otp = otpService.generateOtp(email);
-        // sendOtpToEmailOrSms(email, otp);
-        System.out.println(otp);
-        return Map.of("message", "OTP sent to your email");
+    @PostMapping("/resend-otp")
+    @Operation(summary = "Resend OTP")
+    public ResponseEntity<Map<String, String>> resendOtp(
+            @RequestBody Map<String, String> payload,
+            HttpServletRequest request) {
+        // Same as forgot-password
+        return forgotPassword(payload, request);
     }
 
     @PostMapping("/validate-otp")
     @Operation(summary = "Validate OTP")
-    public Map<String, Object> validateOtp(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String otp = payload.get("otp");
+    public ResponseEntity<Map<String, Object>> validateOtp(
+            @RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String otp = payload.get("otp");
 
-        if (userRepository.findByEmail(email).isEmpty()) {
-            return Map.of("error", "User not found");
-        }
+            boolean isValid = otpService.validateOtp(email, otp);
 
-        boolean isValid = otpService.validateOtp(email, otp);
-        
-        if (isValid) {
-            return Map.of(
-                "isValid", true,
-                "message", "OTP validated successfully"
-            );
-        } else {
-            return Map.of(
-                "isValid", false,
-                "error", "Invalid or expired OTP"
-            );
+            if (isValid) {
+                return ResponseEntity.ok(Map.of(
+                        "isValid", true,
+                        "message", "OTP validated successfully"
+                ));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "isValid", false,
+                        "error", "Invalid or expired OTP"
+                ));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "isValid", false,
+                    "error", e.getMessage()
+            ));
         }
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "Reset User Password")
-    public Map<String, String> resetPassword(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        // String otp = payload.get("otp");
-        String newPassword = payload.get("newPassword");
+    @Operation(summary = "Reset password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String otp = payload.get("otp");
+            String newPassword = payload.get("newPassword");
+            String confirmPassword = payload.get("confirmPassword");
 
-        // if (!otpService.validateOtp(email, otp)) {
-        //     return Map.of("error", "Invalid or expired OTP");
-        // }
+            // Validate passwords match
+            if (!newPassword.equals(confirmPassword)) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Passwords do not match"));
+            }
 
-        Users user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+            // Validate password strength
+            if (newPassword.length() < 8) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Password must be at least 8 characters"));
+            }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
+            // Validate OTP one more time
+            boolean isValid = otpService.validateOtp(email, otp);
+            if (!isValid) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Invalid or expired OTP"));
+            }
 
-        return Map.of("message", "Password has been reset successfully");
+            // Update password
+            Users user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Password has been reset successfully"
+            ));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to reset password"));
+        }
     }
 
     @PostMapping("/refresh-token")
