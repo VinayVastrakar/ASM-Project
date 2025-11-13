@@ -165,6 +165,27 @@ public class OtpService {
     }
 
     /**
+     * Check if user has recently validated OTP (within last 5 minutes)
+     * Used to verify user completed OTP validation before password reset
+     */
+    public boolean hasRecentlyValidatedOtp(String email) {
+        Optional<Users> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return false;
+        }
+
+        Users user = userOptional.get();
+        LocalDateTime fiveMinutesAgo = LocalDateTime.now().minusMinutes(5);
+
+        // Find recently used OTP
+        Optional<OtpToken> recentOtp = otpTokenRepository
+                .findTopByUserAndIsUsedTrueOrderByCreatedAtDesc(user);
+
+        return recentOtp.isPresent()
+                && recentOtp.get().getCreatedAt().isAfter(fiveMinutesAgo);
+    }
+
+    /**
      * Cleanup expired OTPs (run this periodically)
      */
     @Transactional

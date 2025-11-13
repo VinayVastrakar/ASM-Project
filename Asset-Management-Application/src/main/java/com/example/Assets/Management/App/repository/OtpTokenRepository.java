@@ -23,5 +23,7 @@ public interface OtpTokenRepository extends JpaRepository<OtpToken, Long> {
     // Find all unused OTPs for cleanup
     List<OtpToken> findByIsUsedFalseAndExpiresAtBefore(LocalDateTime expiry);
 
-    int deleteByExpiryBefore(LocalDateTime dateTime);
+    int deleteByExpiresAtBefore(LocalDateTime dateTime);
+
+    Optional<OtpToken> findTopByUserAndIsUsedTrueOrderByCreatedAtDesc(Users user);
 }

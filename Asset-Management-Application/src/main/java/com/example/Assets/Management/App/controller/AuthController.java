@@ -228,10 +228,9 @@ public class AuthController {
             }
 
             // Validate OTP one more time
-            boolean isValid = otpService.validateOtp(email, otp);
-            if (!isValid) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error", "Invalid or expired OTP"));
+            if (!otpService.hasRecentlyValidatedOtp(email)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Please validate OTP first"));
             }
 
             // Update password
@@ -241,7 +240,7 @@ public class AuthController {
             user.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(user);
 
-            return ResponseEntity.ok(Map.of(
+                return ResponseEntity.ok(Map.of(
                     "message", "Password has been reset successfully"
             ));
 
