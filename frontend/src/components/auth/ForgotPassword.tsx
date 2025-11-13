@@ -17,16 +17,22 @@ const ForgotPassword: React.FC = () => {
 
         try {
             const response = await passwordApi.forgotPassword({ email });
-            // Check if the response contains an error
-            if (response.data.error) {
-                setError(response.data.error);
-                return;
-            }
-            // Only navigate if there's no error
-            setMessage(response.data.message || 'OTP sent successfully');
-            navigate('/validate-otp', { state: { email } });
+
+            // Show success message
+            setMessage(response.data.message);
+
+            // Navigate to OTP validation page after 1 second
+            setTimeout(() => {
+                navigate('/validate-otp', { state: { email } });
+            }, 1000);
+
         } catch (err: any) {
-            setError(err.response?.data?.error || err.response?.data?.message || 'Failed to process request');
+            // Handle different error responses
+            if (err.response?.status === 429) {
+                setError(err.response.data.error || 'Too many requests. Please try again later.');
+            } else {
+                setError(err.response?.data?.error || 'Failed to send OTP. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -44,38 +50,51 @@ const ForgotPassword: React.FC = () => {
                     </p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-                    <div className="rounded-md shadow-sm -space-y-px">
-                        <div>
-                            <label htmlFor="email" className="sr-only">
-                                Email address
-                            </label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                required
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                placeholder="Email address"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
+                    <div className="rounded-md shadow-sm">
+                        <label htmlFor="email" className="sr-only">
+                            Email address
+                        </label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                            placeholder="Email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            disabled={loading}
+                        />
                     </div>
 
                     {message && (
-                        <div className="text-green-600 text-sm text-center">{message}</div>
+                        <div className="text-green-600 text-sm text-center bg-green-50 p-3 rounded">
+                            {message}
+                        </div>
                     )}
                     {error && (
-                        <div className="text-red-600 text-sm text-center">{error}</div>
+                        <div className="text-red-600 text-sm text-center bg-red-50 p-3 rounded">
+                            {error}
+                        </div>
                     )}
 
                     <div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Sending...' : 'Send OTP'}
+                            {loading ? 'Sending OTP...' : 'Send OTP'}
+                        </button>
+                    </div>
+
+                    <div className="text-center">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/login')}
+                            className="text-sm text-indigo-600 hover:text-indigo-500"
+                        >
+                            Back to Login
                         </button>
                     </div>
                 </form>
@@ -84,4 +103,4 @@ const ForgotPassword: React.FC = () => {
     );
 };
 
-export default ForgotPassword; 
+export default ForgotPassword;

@@ -24,5 +24,5 @@ export const passwordApi = {
 
     // Resend OTP
     resendOTP: (email: string) =>
-        api.post<ApiResponse<{ message: string }>>('/api/auth/forgot-password', { email }),
+        api.post<ApiResponse<{ message: string }>>('/api/auth/resend-otp', { email }),
 }; 
